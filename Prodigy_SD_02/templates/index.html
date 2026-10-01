@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A simple, clean, and professional Number Guessing Game web application for SDE internship task.">
+    <title>Number Guessing Game</title>
+    <!-- Google Font: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <main class="page-wrapper">
+        <section class="game-card" aria-labelledby="game-title">
+            <!-- SDE Task Header Badge -->
+            <div class="card-badge">SDE Task &bull; Prodigy InfoTech</div>
+
+            <header class="game-header">
+                <h1 id="game-title">Number Guessing Game</h1>
+                <p class="subtitle">Guess the number between {{ min_val }}–{{ max_val }}</p>
+            </header>
+
+            <!-- Active Gameplay Form -->
+            <form id="guessForm" action="{{ url_for('guess') }}" method="POST" class="game-form {% if is_game_over %}hidden{% endif %}">
+                <div class="input-group">
+                    <label for="guessInput" class="visually-hidden">Enter your guess</label>
+                    <input 
+                        type="number" 
+                        id="guessInput" 
+                        name="guess" 
+                        placeholder="Enter your guess" 
+                        min="{{ min_val }}" 
+                        max="{{ max_val }}" 
+                        required 
+                        autofocus
+                        autocomplete="off"
+                        aria-describedby="feedback attemptsContainer"
+                    />
+                </div>
+
+                <button type="submit" id="guessBtn" class="btn btn-primary">
+                    Guess
+                </button>
+
+                <!-- Feedback Pill -->
+                <div 
+                    id="feedback" 
+                    class="feedback-msg {% if status %}{{ status }}{% else %}idle{% endif %}" 
+                    role="status" 
+                    aria-live="polite"
+                >
+                    {% if message and not is_game_over %}
+                        {% if status == 'too_high' %}↑ {{ message }}
+                        {% elif status == 'too_low' %}↓ {{ message }}
+                        {% else %}{{ message }}{% endif %}
+                    {% endif %}
+                </div>
+
+                <!-- Attempts & Quick Reset Bar -->
+                <div class="stats-bar" id="attemptsContainer">
+                    <span class="attempts-text">Attempts: <span id="attemptsCount">{{ attempts }}</span></span>
+                    <button type="button" id="quickResetBtn" class="btn-text" title="Reset game">Reset</button>
+                </div>
+
+                <!-- Previous Guesses Chips (SDE Feature) -->
+                <div id="historyContainer" class="history-wrapper {% if not history %}hidden{% endif %}">
+                    <span class="history-label">Previous Guesses:</span>
+                    <div id="historyList" class="history-list">
+                        {% for item in history %}
+                            <span class="history-chip chip-{{ item.status }}">
+                                {{ item.guess }} {% if item.status == 'too_high' %}↑{% elif item.status == 'too_low' %}↓{% endif %}
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </form>
+
+            <!-- Correct / Win State -->
+            <div id="winState" class="win-container {% if not is_game_over %}hidden{% endif %}">
+                <div class="win-badge-icon">🎉</div>
+                <h2 class="win-title">Correct!</h2>
+                <p class="win-desc">
+                    You guessed it in <strong id="finalAttempts">{{ attempts }}</strong> attempts.
+                </p>
+                <div id="targetDisplay" class="target-pill">
+                    Number was: <strong id="targetNumber">--</strong>
+                </div>
+                <button type="button" id="playAgainBtn" class="btn btn-primary">
+                    Play Again
+                </button>
+            </div>
+        </section>
+
+        <!-- Professional Footer -->
+        <footer class="app-footer">
+            <span>SDE Internship Task 02 &bull; Python &amp; Flask</span>
+        </footer>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
